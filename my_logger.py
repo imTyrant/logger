@@ -9,35 +9,30 @@ class Logger:
         INVERSE = "7"
         INVISIBLE = "8"
 
-    class fg:
-        DEFAULT = ""
-        BLACK = ";30"
-        RED = ";31"
-        GREEN = ";32"
-        YELLOW = ";33"
-        BLUE = ";34"
-        PURPLE = ";35"
-        CYAN = ";36"
-        WHITE = ";37"
-
-    class bg:
-        DEFAULT = ""
-        BLACK = ";40"
-        RED = ";41"
-        GREEN = ";42"
-        YELLOW = ";43"
-        BLUE = ";44"
-        PURPLE = ";45"
-        CYAN = ";46"
-        WHITE = ";47"
+    class color:
+        BLACK = 0
+        RED = 1
+        GREEN = 2
+        YELLOW = 3
+        BLUE = 4
+        PURPLE = 5
+        CYAN = 6
+        WHITE = 7
     
     @classmethod
-    def cstr(cls, message: str, message_color: str = fg.DEFAULT, message_background: str = bg.DEFAULT, message_effect: str = effect.DEFAULT) -> str:
-        return f"\033[{message_effect}{message_color}{message_background}m{message}\033[0m" 
+    def cstr(cls, message: str, color: int = None, background: int = None, effect: str = effect.DEFAULT) -> str:
+        def check_param_validity(param):
+            if not isinstance(param, int): return False
+            if param < 0 or param > 7: return False
+            return True
+
+        mc = f";3{color}" if color and check_param_validity(color)  else ""
+        bgc = f";4{background}" if check_param_validity(background) else ""
+        return f"\033[{effect}{mc}{bgc}m{message}\033[0m"
 
     @classmethod
-    def clog(cls, message: str, message_color: str = bg.DEFAULT, message_background: str = bg.DEFAULT, message_effect: str = effect.DEFAULT, ender: str = "\n\r") -> None:
-        print(Logger.cstr(message, message_color, message_background, message_effect), end=ender)
+    def clog(cls, message: str, color: int = None, background: int = None, effect: str = effect.DEFAULT, ender: str = "\n\r") -> None:
+        print(Logger.cstr(message, color, background, effect), end=ender)
     
     @classmethod
     def make_message_decorator(cls, decorators: List[str], index: int = 0) -> Callable[[str], str]:
@@ -51,8 +46,8 @@ class Logger:
 
     @classmethod
     def clog_with_tag(cls, tag: str, message: str, delimiter: str=":",
-                    tag_color: str = fg.DEFAULT, tag_background: str = bg.DEFAULT, tag_effect: str = effect.DEFAULT,
-                    message_color: str = fg.DEFAULT, message_background: str = bg.DEFAULT, message_effect: str = effect.DEFAULT,
+                    tag_color:int = None, tag_background: int = None, tag_effect: str = effect.DEFAULT,
+                    message_color:int = None, message_background:int = None, message_effect: str = effect.DEFAULT,
                     message_decorator: Callable[[str], str] = None, ender: str = "\n\r"
                     ) -> None:
         if message_decorator == None:
@@ -63,5 +58,5 @@ class Logger:
         
 
 if __name__ == "__main__":
-    Logger.clog("clog test", Logger.fg.GREEN, Logger.bg.RED, Logger.effect.UNDERLINE, ender="\nender\n")
-    Logger.clog_with_tag("tag", "clog_with_log test", delimiter=">>>", tag_effect=Logger.effect.UNDERLINE, tag_background=Logger.bg.BLUE, message_effect=Logger.effect.HIGHLIGHT, message_background=Logger.bg.PURPLE)
+    Logger.clog("clog test", Logger.color.GREEN, Logger.color.RED, Logger.effect.UNDERLINE, ender="\nender\n")
+    Logger.clog_with_tag("tag", "clog_with_log test", delimiter=">>>", tag_effect=Logger.effect.UNDERLINE, tag_background=Logger.color.BLUE, message_effect=Logger.effect.HIGHLIGHT, message_background=Logger.color.PURPLE)
