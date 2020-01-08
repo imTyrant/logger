@@ -1,4 +1,5 @@
 from typing import Callable, List
+import sys
 
 class Logger:
     class effect:
@@ -32,7 +33,7 @@ class Logger:
 
     @classmethod
     def clog(cls, message: str, color: int = None, background: int = None, effect: str = effect.DEFAULT, ender: str = "\n\r") -> None:
-        print(Logger.cstr(message, color, background, effect), end=ender)
+        print("\r\033[K" +Logger.cstr(message, color, background, effect), end=ender)
     
     @classmethod
     def make_message_decorator(cls, decorators: List[str], index: int = 0) -> Callable[[str], str]:
@@ -52,9 +53,9 @@ class Logger:
                     ) -> None:
         if message_decorator == None:
             message_decorator = Logger.make_message_decorator(["[", "]"], 1)
-        Logger.clog(message_decorator(tag), tag_color, tag_background, tag_effect, ender="")
-        Logger.clog(delimiter, ender="")
-        Logger.clog(message, message_color, message_background, message_effect, ender=ender)
+        tag = Logger.cstr(message_decorator(tag), tag_color, tag_background, tag_effect)
+        message = Logger.cstr(message, message_color, message_background, message_effect)
+        print("\r\033[K" + tag + delimiter + message, end=ender)
         
 
 if __name__ == "__main__":
